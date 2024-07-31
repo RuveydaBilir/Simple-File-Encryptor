@@ -6,6 +6,7 @@ echo ""
 
 help(){
 echo "Enter action and directory:"
+echo "-change : to change your password"
 echo "-lock : to lock files"
 echo "-unlock : to unlock files"
 exit 1
@@ -13,7 +14,7 @@ exit 1
 
 ACTION=$1
 DIR=$2
-PASS="riddl3r"
+HASH="hash.txt"
 
 lock(){
 if [[ -d $DIR ]]
@@ -22,6 +23,7 @@ echo "Locking files in directory: $DIR"
 
 for FILE in "$DIR"/*; do
         if [[ -f $FILE ]]; then
+        if [[ $FILE != $HASH ]]; then
         echo Locking file: $FILE
         openssl enc -aes-256-cbc -salt -pbkdf2 -in $FILE -out "$FILE".cap -pass pass:$PASS
         if [[ $? -eq 0 ]]
@@ -29,6 +31,7 @@ for FILE in "$DIR"/*; do
             rm "$FILE"
         else
             echo "Failed to lock the file: $FILE"
+        fi
         fi
         fi
 done
@@ -53,8 +56,18 @@ unlock(){
         fi
 }
 start(){
+        if [[ ! -e $HASH ]]; then
+                local password="password"
+                local var=$(echo -n "$password" | md5sum | awk '{print $1}')
+                echo "$var">"$HASH"
+                echo "$HASH is created."
+        fi
+        PASS=$(cat "$HASH")
+
         read -p "Enter your password: " usrPass
-        if [[ usrPass -eq $PASS ]]; then
+        usrPassHash=$(echo -n "$usrPass" | md5sum | awk '{print $1}')
+
+        if [[ "$usrPassHash" == "$PASS" ]]; then
                 case "$ACTION" in
                 lock)
                          lock
@@ -71,10 +84,12 @@ start(){
                 echo "Wrong password."
         fi
 }
+change(){
+        echo "Change function" 
+}
  
 if [ "$#" -ne 2 ]; then
     help
 else
-    echo "Starting.."
     start
 fi
