@@ -1,2 +1,2 @@
-# Simple-File-Encryptor
+# Caprelaus
 Simple file encryptor in Bash
