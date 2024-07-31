@@ -64,7 +64,8 @@ start(){
         fi
         PASS=$(cat "$HASH")
 
-        read -p "Enter your password: " usrPass
+        read -sp "Enter your password: " usrPass
+        echo
         usrPassHash=$(echo -n "$usrPass" | md5sum | awk '{print $1}')
 
         if [[ "$usrPassHash" == "$PASS" ]]; then
@@ -74,6 +75,9 @@ start(){
                         ;;
                 unlock)
                         unlock
+                        ;;
+                change)
+                        change
                         ;;
                 *)
                          usage
@@ -85,11 +89,27 @@ start(){
         fi
 }
 change(){
-        echo "Change function" 
+         read -sp "Enter new password: " new1
+         echo
+         read -sp "Enter new password again: " new2
+         echo
+
+         if [[ "$new1"=="$new2" ]]; then
+                newHash=$(echo -n "$new1" | md5sum | awk '{print $1}')
+                echo "$newHash">"$HASH"
+                PASS=$(cat "$HASH")
+                echo "Password successfully updated."
+         else
+                echo "New passwords don't match."
+         fi
 }
  
 if [ "$#" -ne 2 ]; then
-    help
+    if [[ "$1" != change ]]; then
+        help
+    else
+        start
+    fi
 else
     start
 fi
