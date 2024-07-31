@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 # Banner
 figlet caprelaus
 echo "                          operation: 1.1"
